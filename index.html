@@ -5,8 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="page-title">Cargando...</title>
     
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js">
+function imprimirComandaMesero() {
+    let mesa = document.getElementById('selector-mesa-carrito').value;
+    if(!mesa || !mesasAbiertas[mesa]) return alert("Selecciona una cuenta válida.");
+
+    let itemsMesa = mesasAbiertas[mesa];
+    let fecha = new Date().toLocaleString('es-EC');
+
+    let tckHTML = `
+        <div style="text-align:center;">
+            <div style="font-size:1.3em; font-weight:bold;">COMANDA DE COCINA</div>
+            <div>${config.titulo}</div>
+            <div style="font-size:0.8em;">${fecha}</div>
+            <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+            <div style="font-size:1.2em;">MESA: ${mesa}</div>
+            <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+        </div>
+    `;
+
+    itemsMesa.forEach(item => {
+        tckHTML += `
+            <div style="margin-bottom:8px; font-size:1.1em;">
+                ${item.cant}x ${item.nom}
+            </div>
+        `;
+    });
+
+    tckHTML += `
+        <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+        <div style="text-align:center; font-size:0.9em;">--- FIN COMANDA ---</div>
+    `;
+
+    let ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Comanda</title>
+            <style>
+                body { font-family: 'Courier New', monospace; padding: 10px; margin: 0; font-size: 14px; }
+                img { max-width: 100px; display: block; margin: 0 auto; }
+            </style>
+        </head>
+        <body>${tckHTML}</body>
+        </html>
+    `);
+    ventana.document.close();
+    setTimeout(() => { ventana.focus(); ventana.print(); ventana.close(); }, 300);
+}
+
+</script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js">
+function imprimirComandaMesero() {
+    let mesa = document.getElementById('selector-mesa-carrito').value;
+    if(!mesa || !mesasAbiertas[mesa]) return alert("Selecciona una cuenta válida.");
+
+    let itemsMesa = mesasAbiertas[mesa];
+    let fecha = new Date().toLocaleString('es-EC');
+
+    let tckHTML = `
+        <div style="text-align:center;">
+            <div style="font-size:1.3em; font-weight:bold;">COMANDA DE COCINA</div>
+            <div>${config.titulo}</div>
+            <div style="font-size:0.8em;">${fecha}</div>
+            <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+            <div style="font-size:1.2em;">MESA: ${mesa}</div>
+            <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+        </div>
+    `;
+
+    itemsMesa.forEach(item => {
+        tckHTML += `
+            <div style="margin-bottom:8px; font-size:1.1em;">
+                ${item.cant}x ${item.nom}
+            </div>
+        `;
+    });
+
+    tckHTML += `
+        <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+        <div style="text-align:center; font-size:0.9em;">--- FIN COMANDA ---</div>
+    `;
+
+    let ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Comanda</title>
+            <style>
+                body { font-family: 'Courier New', monospace; padding: 10px; margin: 0; font-size: 14px; }
+                img { max-width: 100px; display: block; margin: 0 auto; }
+            </style>
+        </head>
+        <body>${tckHTML}</body>
+        </html>
+    `);
+    ventana.document.close();
+    setTimeout(() => { ventana.focus(); ventana.print(); ventana.close(); }, 300);
+}
+
+</script>
 
     <link rel="manifest" href="manifest.json">
     <link id="dynamic-favicon" rel="icon" type="image/png" href="favicon.png">
@@ -745,7 +843,7 @@ function cerrarModalClave(){
         itemsMesa.forEach(item => {
             let subtotal = item.pre * item.cant; total += subtotal;
             tckHTML += `<div style="margin-bottom:8px;"><div>${item.cant}x ${item.nom}</div><div style="display:flex; justify-content:space-between; color:#333; font-size:0.9em;"><span>$${item.pre.toFixed(2)} c/u</span><span>$${subtotal.toFixed(2)}</span></div></div>`;
-        });
+    });
         tckHTML += `<div class="tck-line"></div><div class="tck-total">TOTAL: $${total.toFixed(2)}</div><div class="tck-line"></div><div style="text-align:center; font-size:0.8em; margin-top:10px;">¡Gracias por su consumo!</div>`;
         printContainer.innerHTML = tckHTML;
         
@@ -765,7 +863,7 @@ function cerrarModalClave(){
                 actualizarBotonCarritoUI(); 
                 if(Object.keys(mesasAbiertas).length === 0) cerrarCarrito(); else abrirCarrito();
             }
-        }, 500);
+        }, 150);
     }
 
     function generarReporte() {
@@ -808,7 +906,7 @@ function cerrarModalClave(){
         }
     }
 
-    function reimprimirTicket(fechaId) {
+    function reimprimirTicket() {
         let pedido = historialPedidos.find(p => p.fecha === fechaId);
         if(!pedido) return alert("No se encontró el pedido.");
         let printContainer = document.getElementById('print-ticket-pedido');
@@ -816,11 +914,11 @@ function cerrarModalClave(){
         pedido.items.forEach(item => {
             let subtotal = item.pre * item.cant;
             tckHTML += `<div style="margin-bottom:8px;"><div>${item.cant}x ${item.nom}</div><div style="display:flex; justify-content:space-between; color:#333; font-size:0.9em;"><span>$${item.pre.toFixed(2)} c/u</span><span>$${subtotal.toFixed(2)}</span></div></div>`;
-        });
+    });
         tckHTML += `<div class="tck-line"></div><div class="tck-total">TOTAL: $${pedido.total.toFixed(2)}</div><div class="tck-line"></div><div style="text-align:center; font-size:0.8em; margin-top:10px;">Este documento es una copia de una venta anterior.</div>`;
         printContainer.innerHTML = tckHTML;
         document.body.classList.add('printing-ticket');
-        setTimeout(() => { window.print(); document.body.classList.remove('printing-ticket'); }, 500);
+        setTimeout(() => { window.print(); document.body.classList.remove('printing-ticket'); }, 150);
     }
 
     async function guardarPlatillo() { let n=document.getElementById('p-nom').value, p=document.getElementById('p-pre').value, d=document.getElementById('p-desc').value, c=document.getElementById('p-cat').value, sub=document.getElementById('p-subcat').value.trim(), f=document.getElementById('p-img').files[0], ei=parseInt(document.getElementById('edit-index').value); if(!n||!p) return; let img = (ei>-1)?productos[ei].img:""; if(f) img = await comprimirImagen(f); let np={nom:n, pre:p, desc:d, cat:c, subcat:sub, img:img}; if(ei>-1) productos[ei]=np; else productos.push(np); localStorage.setItem('prods', JSON.stringify(productos)); sincronizarNube('menu'); resetForm(); render(); }
@@ -939,6 +1037,55 @@ function cerrarModalClave(){
     document.getElementById('rep-fecha-fin').valueAsDate = new Date();
 
     render();
+
+function imprimirComandaMesero() {
+    let mesa = document.getElementById('selector-mesa-carrito').value;
+    if(!mesa || !mesasAbiertas[mesa]) return alert("Selecciona una cuenta válida.");
+
+    let itemsMesa = mesasAbiertas[mesa];
+    let fecha = new Date().toLocaleString('es-EC');
+
+    let tckHTML = `
+        <div style="text-align:center;">
+            <div style="font-size:1.3em; font-weight:bold;">COMANDA DE COCINA</div>
+            <div>${config.titulo}</div>
+            <div style="font-size:0.8em;">${fecha}</div>
+            <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+            <div style="font-size:1.2em;">MESA: ${mesa}</div>
+            <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+        </div>
+    `;
+
+    itemsMesa.forEach(item => {
+        tckHTML += `
+            <div style="margin-bottom:8px; font-size:1.1em;">
+                ${item.cant}x ${item.nom}
+            </div>
+        `;
+    });
+
+    tckHTML += `
+        <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+        <div style="text-align:center; font-size:0.9em;">--- FIN COMANDA ---</div>
+    `;
+
+    let ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Comanda</title>
+            <style>
+                body { font-family: 'Courier New', monospace; padding: 10px; margin: 0; font-size: 14px; }
+                img { max-width: 100px; display: block; margin: 0 auto; }
+            </style>
+        </head>
+        <body>${tckHTML}</body>
+        </html>
+    `);
+    ventana.document.close();
+    setTimeout(() => { ventana.focus(); ventana.print(); ventana.close(); }, 300);
+}
+
 </script>
 </body>
 </html>
